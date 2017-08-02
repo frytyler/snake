@@ -14,17 +14,23 @@
         "notify": false,
         "rootDir": "./",
         "testRegex": ".(spec).js[x]?$",
-        "moduleFileExtensions": ["js", "json"],
+        "moduleFileExtensions": [
+            "js",
+            "json"
+        ],
         "moduleNameMapper": {
             "app/(.*)": "<rootDir>/app/$1",
             "\\.(css|scss)$": "identity-obj-proxy"
         },
-        "testPathIgnorePatterns": ["/node_modules/"]
+        "testPathIgnorePatterns": [
+            "/node_modules/"
+        ]
     },
     "dependencies": {
         "babel-plugin-transform-runtime": "^6.23.0",
         "babel-polyfill": "^6.23.0",
         "babel-register": "^6.24.1",
+        "immutable": "v4.0.0-rc.2",
         "path": "^0.12.7",
         "ramda": "^0.24.1",
         "rxjs": "^5.4.2"
