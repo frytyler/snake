@@ -15,11 +15,14 @@ score$.subscribe(score => {
 });
 
 const createFood = food => ({
-    makePosition() {
-        return Math.round(Math.floor(Math.random() * 300) / 10) * 10;
+    makePosition(n) {
+        return Math.round(Math.floor(Math.random() * n) / 10) * 10;
     },
     create(snake) {
-        const newFood = fromJS([this.makePosition(), this.makePosition()]);
+        const newFood = fromJS([
+            this.makePosition(500),
+            this.makePosition(300),
+        ]);
         if (snake.collision(newFood)) this.create(snake);
         else food = newFood;
     },
@@ -32,8 +35,8 @@ const createFood = food => ({
         } else return false;
     },
     draw() {
-        const hex = Math.floor(Math.random() * 16777215).toString(16);
-        context.fillStyle = `#${hex}`;
+        // const hex = Math.floor(Math.random() * 16777215).toString(16);
+        context.fillStyle = '#32CD32'; // `#${hex}`;
         context.fillRect(food.get(0), food.get(1), 10, 10);
 
         return this;
@@ -53,7 +56,7 @@ const arena = {
     },
 };
 
-const food = createFood(fromJS([150, 150])).draw();
+const food = createFood(fromJS([250, 150])).draw();
 
 const createSnake = snake => ({
     link: {
@@ -115,27 +118,15 @@ const snake = createSnake(
     ])
 ).draw();
 
-const allowedKeys = fromJS([37, 38, 39, 40]);
-let allowedMoves = allowedKeys.delete(0);
 let previousMove;
 
-const interval$ = Observable.interval(100);
+const interval$ = Observable.interval(100, Scheduler.requestAnimationFrame);
 const keydown$ = Observable.fromEvent(document, 'keydown')
     .map(e => e.keyCode)
-    .filter(keyCode => allowedKeys.includes(keyCode))
+    .filter(keyCode => [37, 38, 39, 40].includes(keyCode))
     .filter(keyCode => !previousMove || (keyCode + previousMove) % 2)
     .do(keyCode => (previousMove = keyCode));
 
-const game$ = Observable.combineLatest(keydown$, interval$).takeUntil(
-    collision$
-);
+const game$ = interval$.withLatestFrom(keydown$).takeUntil(collision$);
 
-game$.subscribe(([keyCode, ...rest]) => {
-    snake.move(keyCode);
-});
-
-// let x = 0;
-
-// Observable.interval(100, Scheduler.animationFrame).subscribe(a =>
-//     console.log(a)
-// );
+game$.subscribe(([interval, keyCode]) => snake.move(keyCode));
